@@ -1,0 +1,29 @@
+import React from 'react'
+import { createAnecdote } from '../reducers/anecdoteReducer'
+
+
+
+const AnecdoteForm = ({store}) => {
+    const addAnecdote = (event) => {
+        event.preventDefault()
+        // As the form is uncontrolled, here we pull the form value
+        const content = event.target.anecdote.value
+        event.target.anecdote.value = ''
+        store.dispatch(
+            createAnecdote(content)
+        )
+    }
+
+    return (
+        <div>
+            <h2>create new</h2 >
+            <form onSubmit={addAnecdote}>
+                <div><input name='anecdote' /></div>
+                <button type='submit'>create</button>
+            </form>
+        </div>
+    )
+}
+
+export default AnecdoteForm
+    
