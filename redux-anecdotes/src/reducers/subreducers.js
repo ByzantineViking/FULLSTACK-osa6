@@ -1,44 +1,70 @@
-
-
-const anecdotesAtStart = [
-  'If it hurts, do it more often',
-  'Adding manpower to a late software project makes it later!',
-  'The first 90 percent of the code accounts for the first 90 percent of the development time...The remaining 10 percent of the code accounts for the other 90 percent of the development time.',
-  'Any fool can write code that a computer can understand. Good programmers write code that humans can understand.',
-  'Premature optimization is the root of all evil.',
-  'Debugging is twice as hard as writing the code in the first place. Therefore, if you write the code as cleverly as possible, you are, by definition, not smart enough to debug it.'
-]
-
-const getId = () => (100000 * Math.random()).toFixed(0)
-
-const asObject = (anecdote) => {
-  return {
-    content: anecdote,
-    id: getId(),
-    votes: 0
-  }
-}
+import anecdoteService from '../services/anecdotes'
 
 // Functions to oust the decision of reducer case out of other components 
-export const hideMessage = () => {
-  return {
-    type: 'HIDE_MESSAGE'
-  }
-}
-export const vote = (id) => {
-  return {
-    type: 'VOTE',
-    data: {
-      id: id
-    }
-  }
+export const vote = (anecdote) => {
+  // redux-thunk
+  return async (dispatch) => {
+    const newAnecdote = await anecdoteService.update(anecdote)
+    // Update the view
+    dispatch({
+      type: 'VOTE',
+      data: {
+        id: newAnecdote.id
+      }
+    })
+    const anecdotes = await anecdoteService.getAll()
+    const votedOnAnecdotes = anecdotes.map(a => {
+      if (a.id === newAnecdote.id) {
+        return newAnecdote
+      } else {
+        return a
+      }
+    })
+    /* Here we update the voted on item in cache to be correct,
+       so that when we return the cache aka remove the filter
+       the votes on that anecdote stay. */
+    dispatch({
+      type: 'CACHE',
+      data: {
+        anecdotes: votedOnAnecdotes
+      }
+    })
+  } 
 }
 export const createAnecdote = (content) => {
-  return {
-    type: 'NEW_ANECDOTE',
-    data: {
-      content
-    }
+  // redux-thunk
+  return async (dispatch) => {
+    const newAnecdote = await anecdoteService.create(content)
+    dispatch({
+      type: 'NEW_ANECDOTE',
+      data: newAnecdote
+    })
+  }
+}
+export const initializeAnecdotes = () => {
+  // redux-thunk
+  return async (dispatch) => {
+    const anecdotes = await anecdoteService.getAll()
+    dispatch({
+      type: 'INIT',
+      data: anecdotes
+    })
+  }
+}
+export const setMessage = (message, time) => {
+  // redux-thunk
+  return async (dispatch) => {
+    dispatch({
+      type: 'SET_MESSAGE',
+      data: {
+        message
+      }
+    })
+    setTimeout( () => {
+      dispatch({
+        type: 'HIDE_MESSAGE'
+      })
+    }, time)
   }
 }
 export const restoreAnecdote = (anecdote) => {
@@ -52,14 +78,6 @@ export const filterAnecdotes = (filter) => {
     type: 'FILTER',
     data: {
       filter
-    }
-  }
-}
-export const setMessage = (message) => {
-  return {
-    type: 'SET_MESSAGE',
-    data: {
-      message
     }
   }
 }
@@ -91,7 +109,7 @@ export const toggleButton = (boolean) => {
 }
 
 const initialState = {
-  anecdotes: anecdotesAtStart.map(asObject),
+  anecdotes: [],
   notification: '',
   cache: [],
   button: true
@@ -149,7 +167,9 @@ export const buttonReducer = (state = initialState.button, action) => {
 export const listReducer = (state = initialState.anecdotes, action) => {
   switch (action.type) {
     case 'NEW_ANECDOTE':
-      return state.concat(asObject(action.data.content))
+      return state.concat(action.data)
+    case 'INIT':
+      return action.data
     case 'RESTORED_ANECDOTE':
       return state.concat(action.data)
     case 'VOTE':

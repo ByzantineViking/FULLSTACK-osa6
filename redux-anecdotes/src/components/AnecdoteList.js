@@ -1,6 +1,6 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import { vote, hideMessage, setMessage } from '../reducers/subreducers'
+import { vote, setMessage } from '../reducers/subreducers'
 
 const AnecdoteList = (props) => {
     return (
@@ -8,18 +8,17 @@ const AnecdoteList = (props) => {
         {
             props.anecdotes
                 .map(anecdote =>
+                   
                     <li key={anecdote.id}>
                         <div>
                             {anecdote.content}
                         </div>
                         <div>
                             has {anecdote.votes}
+                            <div style={{display: "inline"}}> votes </div>
                             <button onClick={() => {
-                                props.vote(anecdote.id)
-                                props.setMessage(`You voted '${anecdote.content}'`)
-                                setTimeout( () => {
-                                    props.hideMessage()   
-                                }, 5000)
+                                props.vote(anecdote)
+                                props.setMessage(`You voted '${anecdote.content}'`, 5000)
                             }}>
                                     vote
                             </button>
@@ -39,11 +38,8 @@ const mapStateToProps = (state) => {
 // This way is useful if dispatched actions need to reference the props of the component.
 const mapDispatchToProps = dispatch => {
     return {
-        hideMessage: value => {
-            dispatch(hideMessage(value))
-        },
-        setMessage: value => {
-            dispatch(setMessage(value))
+        setMessage: (value, time) => {
+            dispatch(setMessage(value, time))
         },
         vote: value => {
             dispatch(vote(value))

@@ -1,20 +1,16 @@
 import React from 'react'
 // These are used just to give them to connect
-import { createAnecdote, setMessage, hideMessage } from '../reducers/subreducers'
+import { createAnecdote, setMessage } from '../reducers/subreducers'
 import { connect } from 'react-redux'
 
-
 const AnecdoteForm = (props) => {
-    const addAnecdote = (event) => {
+    const addAnecdote = async (event) => {
         event.preventDefault()
         // As the form is uncontrolled, here we pull the form value
         const content = event.target.anecdote.value
         event.target.anecdote.value = ''
         props.createAnecdote(content)
-        props.setMessage(`You created ${content}`)
-        setTimeout( () => {
-            props.hideMessage()
-        }, 5000)
+        props.setMessage(`You created ${content}`, 5000)
     }
 
     return (
@@ -28,5 +24,5 @@ const AnecdoteForm = (props) => {
     )
 }
 // Under is short-hand for constructing js object with createAnecdote: createAnecdote ...
-export default connect(null, { createAnecdote, setMessage, hideMessage })(AnecdoteForm)
+export default connect(null, { createAnecdote, setMessage })(AnecdoteForm)
     
