@@ -1,5 +1,5 @@
 import React from 'react'
-import { createAnecdote } from '../reducers/anecdoteReducer'
+import { createAnecdote, setMessage, hideMessage } from '../reducers/subreducers'
 
 
 
@@ -12,6 +12,12 @@ const AnecdoteForm = ({store}) => {
         store.dispatch(
             createAnecdote(content)
         )
+        store.dispatch(
+            setMessage(`You created ${content}`)
+        )
+        setTimeout( () => {
+            store.dispatch(hideMessage())
+        }, 5000)
     }
 
     return (

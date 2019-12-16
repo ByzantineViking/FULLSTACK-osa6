@@ -1,13 +1,11 @@
 import React from 'react'
-import { vote } from '../reducers/anecdoteReducer'
+import { vote, hideMessage, setMessage } from '../reducers/subreducers'
 
 const AnecdoteForm = ({store}) => {
-
-    const anecdotes = store.getState()
     return (
         <ul>
         {
-            anecdotes
+            store.getState().anecdotes
                 .sort((a, b) => b.votes - a.votes)
                 .map(anecdote =>
                     <li key={anecdote.id}>
@@ -16,7 +14,15 @@ const AnecdoteForm = ({store}) => {
                         </div>
                         <div>
                             has {anecdote.votes}
-                            <button onClick={() => store.dispatch(vote(anecdote.id))}>vote</button>
+                            <button onClick={() => {
+                                store.dispatch(vote(anecdote.id))
+                                store.dispatch(setMessage(`You voted '${anecdote.content}'`))
+                                setTimeout( () => {
+                                    store.dispatch(hideMessage())    
+                                }, 5000)
+                            }}>
+                                    vote
+                            </button>
                         </div>
                     </li>
                 )
