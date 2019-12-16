@@ -81,11 +81,20 @@ export const clearAnecdotes = () => {
     type: 'CLEAR'
   }
 }
+export const toggleButton = (boolean) => {
+  return {
+    type: 'TOGGLE_BUTTON',
+    data: {
+      current: boolean
+    }
+  }
+}
 
 const initialState = {
   anecdotes: anecdotesAtStart.map(asObject),
   notification: '',
-  cache: []
+  cache: [],
+  button: true
 }
 
 // Under are the reducers
@@ -125,6 +134,14 @@ export const cacheReducer = (state = initialState.cache,  action) => {
       return action.data.anecdotes
     case 'CLEAR_CACHE':
       return []
+    default:
+      return state
+  }
+}
+export const buttonReducer = (state = initialState.button, action) => {
+  switch(action.type) {
+    case 'TOGGLE_BUTTON':
+      return !action.data.current
     default:
       return state
   }
